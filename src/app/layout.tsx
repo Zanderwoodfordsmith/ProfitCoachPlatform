@@ -30,6 +30,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
+        <div
+          className="shrink-0 bg-green-600 px-4 py-3 text-center text-base font-bold tracking-wide text-white"
+          role="status"
+        >
+          test
+        </div>
         <div className="flex min-h-full min-h-screen flex-1 flex-col sm:flex-row sm:items-stretch">
           <AppSidebar />
           <div className="min-h-full min-w-0 flex-1">{children}</div>
