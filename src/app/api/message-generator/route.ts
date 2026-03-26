@@ -60,7 +60,20 @@ export async function POST(req: Request) {
     );
   }
 
-  const system = buildSystemPrompt();
+  let system: string;
+  try {
+    system = buildSystemPrompt();
+  } catch (err) {
+    console.error("[message-generator] buildSystemPrompt failed:", err);
+    return NextResponse.json(
+      {
+        error:
+          "Could not load messaging knowledge on the server. Try redeploying the latest build.",
+      },
+      { status: 500 },
+    );
+  }
+
   const model = process.env.ANTHROPIC_MODEL ?? DEFAULT_MODEL;
 
   const anthropic = new Anthropic({ apiKey });

@@ -43,10 +43,15 @@ export function MessageGeneratorChat() {
       });
 
       if (!res.ok) {
-        const errJson = (await res.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(errJson?.error ?? `Request failed (${res.status})`);
+        const bodyText = await res.text();
+        let msg = `Request failed (${res.status})`;
+        try {
+          const parsed = JSON.parse(bodyText) as { error?: string };
+          if (parsed?.error) msg = parsed.error;
+        } catch {
+          if (bodyText.length > 0 && bodyText.length < 200) msg = bodyText;
+        }
+        throw new Error(msg);
       }
 
       const reader = res.body?.getReader();
