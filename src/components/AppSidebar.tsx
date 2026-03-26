@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export function AppSidebar() {
   return (
-    <aside className="sticky top-0 z-40 w-full shrink-0 border-b border-zinc-200 bg-zinc-100 sm:w-56 sm:self-start sm:border-b-0 sm:border-r">
+    <aside className="sticky top-0 z-40 w-full shrink-0 border-b border-zinc-200 bg-zinc-100 sm:w-56 sm:border-b-0 sm:border-r">
       <nav className="flex flex-col gap-1 p-3 sm:p-4">
         <div className="px-3 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
           Profit Coach
