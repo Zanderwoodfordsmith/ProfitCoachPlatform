@@ -1,12 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  connectionRequestsPerWeek,
-  connectionVolumeStatus,
-  inclusiveDays,
-  weeksFromInclusiveDays,
-} from "@/lib/connectionVolume";
+import { inclusiveDays } from "@/lib/connectionVolume";
 
 const LOW_CR_SAMPLE = 300;
 
@@ -30,17 +25,6 @@ export function ConnectionVolumePanel({
     () => inclusiveDays(startDate, endDate),
     [startDate, endDate],
   );
-  const weeks =
-    days !== null && days >= 1 ? weeksFromInclusiveDays(days) : 0;
-  const perWeek =
-    weeks > 0 && connectionRequests > 0
-      ? connectionRequestsPerWeek(connectionRequests, weeks)
-      : 0;
-
-  const volStatus = useMemo(
-    () => (weeks > 0 ? connectionVolumeStatus(perWeek) : null),
-    [perWeek, weeks],
-  );
 
   const rangeBad = Boolean(startDate && endDate && days === null);
   const lowSample =
@@ -49,107 +33,120 @@ export function ConnectionVolumePanel({
     days !== null &&
     !rangeBad;
 
-  const volBadge =
-    volStatus === "green"
-      ? { dot: "bg-emerald-500", text: "text-emerald-800", label: "Good" }
-      : volStatus === "yellow"
-        ? { dot: "bg-amber-500", text: "text-amber-800", label: "OK" }
-        : volStatus === "red"
-          ? { dot: "bg-rose-500", text: "text-rose-800", label: "Low" }
-          : null;
-
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2.5 shadow-sm">
-      <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
-        <label className="flex flex-col gap-0.5 text-[11px] font-medium text-zinc-500">
-          Start
-          <input
-            type="date"
-            value={startDate}
-            max={endDate || undefined}
-            onChange={(e) => onStartDateChange(e.target.value)}
-            className="h-8 rounded border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-200"
-          />
-        </label>
-        <label className="flex flex-col gap-0.5 text-[11px] font-medium text-zinc-500">
-          End
-          <input
-            type="date"
-            value={endDate}
-            min={startDate || undefined}
-            onChange={(e) => onEndDateChange(e.target.value)}
-            className="h-8 rounded border border-zinc-200 bg-white px-2 text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-200"
-          />
-        </label>
+    <div className="rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <div className="grid grid-cols-1 gap-0 sm:grid-cols-[1fr_auto_1fr] sm:items-stretch">
+        {/* Campaign dates */}
+        <div className="flex flex-col gap-3 px-4 py-3.5">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zinc-700">
+            Campaign Date
+          </h3>
 
-        <label className="flex cursor-pointer items-center gap-1.5 text-[11px] text-zinc-600">
-          <input
-            type="checkbox"
-            checked={ssi70Plus}
-            onChange={(e) => {
-              setSsi70Plus(e.target.checked);
-              if (e.target.checked) setSsiScore("");
-            }}
-            className="h-3.5 w-3.5 rounded border-zinc-300 text-blue-600"
-          />
-          SSI 70+
-        </label>
-
-        <label className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-          SSI
-          <input
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={100}
-            placeholder="—"
-            value={ssiScore}
-            disabled={ssi70Plus}
-            onChange={(e) => {
-              const v = e.target.value.replace(/\D/g, "").slice(0, 3);
-              setSsiScore(v);
-              if (v) setSsi70Plus(false);
-            }}
-            onBlur={() => {
-              if (ssiScore === "") return;
-              const n = Number.parseInt(ssiScore, 10);
-              if (!Number.isFinite(n)) setSsiScore("");
-              else if (n > 100) setSsiScore("100");
-            }}
-            className="h-8 w-14 rounded border border-zinc-200 bg-white px-1.5 text-center text-xs text-zinc-900 focus:outline-none focus:ring-1 focus:ring-blue-200 disabled:bg-zinc-50"
-          />
-        </label>
-      </div>
-
-      {rangeBad ? (
-        <p className="mt-1.5 text-[11px] text-rose-600">End before start.</p>
-      ) : null}
-
-      {connectionRequests > 0 && days !== null && !rangeBad ? (
-        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-zinc-600">
-          <span className="font-medium text-zinc-800">
-            ~{Math.round(perWeek)}/week
-          </span>
-          <span>{`· ${days}d · ${weeks.toFixed(weeks % 1 === 0 ? 0 : 1)}wk`}</span>
-          {volBadge ? (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full border border-zinc-200/80 bg-zinc-50 px-2 py-0.5 font-medium ${volBadge.text}`}
-            >
-              <span
-                className={`h-1.5 w-1.5 shrink-0 rounded-full ${volBadge.dot}`}
-                aria-hidden
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <span className="text-sm font-semibold text-zinc-800">
+                Beginning
+              </span>
+              <input
+                type="date"
+                value={startDate}
+                max={endDate || undefined}
+                onChange={(e) => onStartDateChange(e.target.value)}
+                className="h-9 w-full max-w-[11.5rem] cursor-pointer rounded-md border border-zinc-200 bg-zinc-50/80 px-2.5 text-sm text-zinc-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200/80 sm:max-w-none"
               />
-              {volBadge.label}
-            </span>
+            </div>
+
+            <div className="hidden text-zinc-300 sm:block sm:self-end sm:px-0.5">
+              <span className="text-lg font-light" aria-hidden>
+                →
+              </span>
+            </div>
+
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <span className="text-sm font-semibold text-zinc-800">End</span>
+              <input
+                type="date"
+                value={endDate}
+                min={startDate || undefined}
+                onChange={(e) => onEndDateChange(e.target.value)}
+                className="h-9 w-full max-w-[11.5rem] cursor-pointer rounded-md border border-zinc-200 bg-zinc-50/80 px-2.5 text-sm text-zinc-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200/80 sm:max-w-none"
+              />
+            </div>
+          </div>
+
+          {rangeBad ? (
+            <p className="text-[11px] text-rose-600">End before start.</p>
+          ) : null}
+
+          {days !== null && !rangeBad ? (
+            <p className="text-[12px] text-zinc-600">
+              <span className="font-medium text-zinc-800">{days}</span>
+              {days === 1 ? " day" : " days"} in this window
+            </p>
+          ) : null}
+
+          {lowSample ? (
+            <p className="text-[11px] text-amber-800/90">
+              &lt;{LOW_CR_SAMPLE} CRs — rates are noisy.
+            </p>
           ) : null}
         </div>
-      ) : null}
 
-      {lowSample ? (
-        <p className="mt-1 text-[11px] text-amber-800/90">
-          &lt;{LOW_CR_SAMPLE} CRs — rates are noisy.
-        </p>
-      ) : null}
+        <div
+          className="hidden h-full w-px shrink-0 bg-zinc-200 sm:block"
+          aria-hidden
+        />
+
+        <div className="h-px w-full bg-zinc-200 sm:hidden" aria-hidden />
+
+        {/* SSI */}
+        <div className="flex flex-col gap-3 px-4 py-3.5 sm:min-w-[12rem]">
+          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-zinc-700">
+            Social Selling Index
+          </h3>
+          <div className="flex flex-col gap-3">
+            <label className="flex cursor-pointer items-center gap-2 text-[13px] text-zinc-700">
+              <input
+                type="checkbox"
+                checked={ssi70Plus}
+                onChange={(e) => {
+                  setSsi70Plus(e.target.checked);
+                  if (e.target.checked) setSsiScore("");
+                }}
+                className="h-4 w-4 rounded border-zinc-300 text-blue-600"
+              />
+              <span>SSI is 70 or above</span>
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-semibold text-zinc-800">
+                Score (0–100)
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={100}
+                placeholder="—"
+                value={ssiScore}
+                disabled={ssi70Plus}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, "").slice(0, 3);
+                  setSsiScore(v);
+                  if (v) setSsi70Plus(false);
+                }}
+                onBlur={() => {
+                  if (ssiScore === "") return;
+                  const n = Number.parseInt(ssiScore, 10);
+                  if (!Number.isFinite(n)) setSsiScore("");
+                  else if (n > 100) setSsiScore("100");
+                }}
+                className="h-9 w-full max-w-[8rem] rounded-md border border-zinc-200 bg-white px-2.5 text-center text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200/80 disabled:cursor-not-allowed disabled:bg-zinc-50 disabled:text-zinc-400"
+              />
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
