@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "push": "git push",
+    "ship": "bash scripts/ship.sh"
   },
   "dependencies": {
     "lucide-react": "^1.6.0",
